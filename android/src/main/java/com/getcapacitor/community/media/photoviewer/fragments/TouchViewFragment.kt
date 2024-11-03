@@ -9,12 +9,12 @@ import android.view.*
 import android.widget.RelativeLayout
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.DialogFragment
+import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.getcapacitor.JSObject
 import com.getcapacitor.community.media.photoviewer.databinding.FragmentTouchviewBinding
 import com.getcapacitor.community.media.photoviewer.helper.BackgroundColor
 import com.getcapacitor.community.media.photoviewer.helper.CallbackListener
-import com.getcapacitor.community.media.photoviewer.helper.GlideApp
 import com.getcapacitor.community.media.photoviewer.helper.ImageToBeLoaded
 import com.ortiz.touchview.TouchImageView
 import java.io.File
@@ -58,18 +58,14 @@ class TouchViewFragment(private val callbackListener: CallbackListener): DialogF
 
         if (toBeLoaded is String) {
             // load image from http
-            GlideApp.with(appContext)
+            Glide.with(appContext)
                 .load(toBeLoaded)
-                .fitCenter()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivTouchImage)
         }
         if (toBeLoaded is File) {
-            GlideApp.with(appContext)
+            Glide.with(appContext)
                 .asBitmap()
                 .load(toBeLoaded)
-                .fitCenter()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivTouchImage)
         }
 

@@ -6,8 +6,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.os.Environment
 import android.os.Parcelable
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,9 +23,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.load.model.LazyHeaders
-import com.getcapacitor.JSObject
 import com.getcapacitor.community.media.photoviewer.Notifications.NotificationCenter
 import com.getcapacitor.community.media.photoviewer.R
 import com.getcapacitor.community.media.photoviewer.adapter.Image
@@ -32,6 +31,7 @@ import com.getcapacitor.community.media.photoviewer.helper.*
 import com.getcapacitor.community.media.photoviewer.listeners.OnSwipeTouchListener
 import java.io.File
 import android.view.animation.AnimationUtils
+import com.bumptech.glide.Glide
 
 class ScreenSlidePageFragment() : Fragment(), CallbackListener {
     private val TAG = "ScreenSlidePageFragment"
@@ -50,8 +50,6 @@ class ScreenSlidePageFragment() : Fragment(), CallbackListener {
     var maxZoomScale: Double = 3.0
     var compressionQuality: Double = 0.8
     var backgroundColor: String = "black"
-    var customHeaders: JSObject = JSObject()
-
     companion object {
         const val ARG_IMAGE = "image"
         const val ARG_MODE = "mode"
@@ -61,7 +59,6 @@ class ScreenSlidePageFragment() : Fragment(), CallbackListener {
         const val ARG_MAXZOOMSCALE = "maxzoomscale"
         const val ARG_COMPRESSIONQUALITY = "compressionquality"
         const val ARG_BACKGROUNDCOLOR = "backgroundcolor"
-        const val ARG_CUSTOMHEADERS = "customHeaders"
 
         inline fun <reified T : Parcelable> Bundle.parcelable(key: String): T? = when {
             SDK_INT >= 33 -> getParcelable(key, T::class.java)
@@ -70,7 +67,7 @@ class ScreenSlidePageFragment() : Fragment(), CallbackListener {
 
         fun getInstance(image: Image, mode: String, imageIndex: Int, bShare: Boolean,
                         bTitle: Boolean, maxZoomScale: Double, compressionQuality: Double,
-                        backgroundColor: String, customHeaders: JSObject): Fragment {
+                        backgroundColor: String): Fragment {
             val screenSlidePageFragment = ScreenSlidePageFragment()
             val bundle = Bundle()
             bundle.putParcelable(ARG_IMAGE, image)
@@ -81,7 +78,6 @@ class ScreenSlidePageFragment() : Fragment(), CallbackListener {
             bundle.putDouble(ARG_MAXZOOMSCALE, maxZoomScale)
             bundle.putDouble(ARG_COMPRESSIONQUALITY, compressionQuality)
             bundle.putString(ARG_BACKGROUNDCOLOR, backgroundColor)
-            bundle.putString(ARG_CUSTOMHEADERS, customHeaders.toString())
             screenSlidePageFragment.arguments = bundle
             return screenSlidePageFragment
         }
@@ -101,7 +97,7 @@ class ScreenSlidePageFragment() : Fragment(), CallbackListener {
         if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             image = requireArguments().getParcelable(ARG_IMAGE,Image::class.java)!!
         } else {
-          image = requireArguments().getParcelable<Image>(ARG_IMAGE)!!
+            image = requireArguments().getParcelable<Image>(ARG_IMAGE)!!
         }
         mode = requireArguments().getString(ARG_MODE).toString()
         imageIndex = requireArguments().getInt(ARG_IMAGEINDEX)
@@ -110,7 +106,6 @@ class ScreenSlidePageFragment() : Fragment(), CallbackListener {
         maxZoomScale = requireArguments().getDouble(ARG_MAXZOOMSCALE)
         compressionQuality = requireArguments().getDouble(ARG_COMPRESSIONQUALITY)
         backgroundColor= requireArguments().getString(ARG_BACKGROUNDCOLOR).toString()
-        customHeaders = JSObject(requireArguments().getString(ARG_CUSTOMHEADERS))
         appContext = this.requireContext()
         appId = appContext.getPackageName()
         rlFullscreen = binding.rlFullscreenImage
@@ -129,34 +124,16 @@ class ScreenSlidePageFragment() : Fragment(), CallbackListener {
         val toBeLoaded = image.url?.let { mImageToBeLoaded.getToBeLoaded(it) }
 
         if (toBeLoaded is String) {
-            if (toBeLoaded.contains("base64")) {
-                GlideApp.with(appContext)
-                    .asBitmap()
-                    .load(toBeLoaded)
-                    .fitCenter()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(ivFullscreenImage)
-            } else {
-                // load image from url
-                val lazyHeaders = LazyHeaders.Builder()
-                for (key in customHeaders.keys()) {
-                    customHeaders.getString(key)?.let { lazyHeaders.addHeader(key, it) }
-                }
-                val glideUrl = GlideUrl(toBeLoaded, lazyHeaders.build())
-                GlideApp.with(appContext)
-                    .load(glideUrl)
-                    .fitCenter()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(ivFullscreenImage)
-            }
+            // load image from http
+            Glide.with(appContext)
+                .load(toBeLoaded)
+                .into(ivFullscreenImage)
         }
         if (toBeLoaded is File) {
             // load image from file
-            GlideApp.with(appContext)
+            Glide.with(appContext)
                 .asBitmap()
                 .load(toBeLoaded)
-                .fitCenter()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivFullscreenImage)
         }
 

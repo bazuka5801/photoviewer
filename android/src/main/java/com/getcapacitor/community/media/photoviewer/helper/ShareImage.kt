@@ -12,7 +12,6 @@ import android.os.StrictMode
 import android.view.Gravity
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.getcapacitor.community.media.photoviewer.adapter.Image
@@ -72,37 +71,37 @@ class ShareImage {
         tmpImage = File(appContext.filesDir, fileName)
         val mImageToBeLoaded = ImageToBeLoaded()
         val toBeLoaded = image.url?.let { mImageToBeLoaded.getToBeLoaded(it) }
-        GlideApp.with(appContext)
-            .asBitmap()
-            .load(toBeLoaded)
-            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-            .into(object : CustomTarget<Bitmap>() {
-                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                    try {
-                        val out = FileOutputStream(tmpImage)
-                        val compression = compressionQuality * 100
-                        resource.compress(Bitmap.CompressFormat.PNG, compression.toInt(), out)
-                        out.close()
-                        tmpImage!!.setReadable(true, false)
-                        val toast = Toast.makeText(appContext, " created: $fileName", Toast.LENGTH_SHORT)
-                        toast.setGravity(Gravity.TOP, 0, 50)
-                        toast.show()
-
-                        // share Intent creation
-                        shareIntentCreation(appId, appContext)
-                        return
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                        val toast = Toast.makeText(appContext, e.message, Toast.LENGTH_SHORT)
-                        toast.setGravity(Gravity.TOP, 0, 50)
-                        toast.show()
-                        return
-                    }
-                }
-
-                override fun onLoadCleared(placeholder: Drawable?) {
-                }
-            })
+//        GlideApp.with(appContext)
+//            .asBitmap()
+//            .load(toBeLoaded)
+//            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+//            .into(object : CustomTarget<Bitmap>() {
+//                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+//                    try {
+//                        val out = FileOutputStream(tmpImage)
+//                        val compression = compressionQuality * 100
+//                        resource.compress(Bitmap.CompressFormat.PNG, compression.toInt(), out)
+//                        out.close()
+//                        tmpImage!!.setReadable(true, false)
+//                        val toast = Toast.makeText(appContext, " created: $fileName", Toast.LENGTH_SHORT)
+//                        toast.setGravity(Gravity.TOP, 0, 50)
+//                        toast.show()
+//
+//                        // share Intent creation
+//                        shareIntentCreation(appId, appContext)
+//                        return
+//                    } catch (e: IOException) {
+//                        e.printStackTrace()
+//                        val toast = Toast.makeText(appContext, e.message, Toast.LENGTH_SHORT)
+//                        toast.setGravity(Gravity.TOP, 0, 50)
+//                        toast.show()
+//                        return
+//                    }
+//                }
+//
+//                override fun onLoadCleared(placeholder: Drawable?) {
+//                }
+//            })
 
     }
     private fun deleteTmpImage() {

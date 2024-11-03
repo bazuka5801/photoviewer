@@ -1,6 +1,12 @@
 # node files
 dist
 node_modules
+android/caches
+**/dists/*
+android/native
+android/android
+android/daemon
+android/jdks
 
 # iOS files
 Pods

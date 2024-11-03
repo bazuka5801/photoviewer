@@ -124,7 +124,7 @@ class GalleryFullscreenFragment: DialogFragment() {
         override fun createFragment(position: Int): Fragment {
             val image: Image = imageList.get(position)
             return ScreenSlidePageFragment.getInstance(image, mode, position, bShare, bTitle, maxZoomScale,
-                compressionQuality, backgroundColor, customHeaders)
+                compressionQuality, backgroundColor)
 
         }
     }

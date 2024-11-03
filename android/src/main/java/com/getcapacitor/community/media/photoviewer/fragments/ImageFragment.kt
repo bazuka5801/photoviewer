@@ -19,15 +19,12 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.model.GlideUrl
-import com.bumptech.glide.load.model.LazyHeaders
 import com.getcapacitor.JSObject
 import com.getcapacitor.community.media.photoviewer.Notifications.NotificationCenter
 import com.getcapacitor.community.media.photoviewer.R
 import com.getcapacitor.community.media.photoviewer.adapter.Image
 import com.getcapacitor.community.media.photoviewer.databinding.ImageFragmentBinding
 import com.getcapacitor.community.media.photoviewer.helper.BackgroundColor
-import com.getcapacitor.community.media.photoviewer.helper.GlideApp
 import com.getcapacitor.community.media.photoviewer.helper.ImageToBeLoaded
 import com.getcapacitor.community.media.photoviewer.helper.ShareImage
 import com.getcapacitor.community.media.photoviewer.listeners.OnSwipeTouchListener
@@ -39,7 +36,6 @@ class ImageFragment : Fragment() {
     private var imageFragmentBinding: ImageFragmentBinding? = null
     private var bShare: Boolean = true
     private var maxZoomScale: Double = 3.0
-    private var customHeaders: JSObject = JSObject()
     private var compressionQuality: Double = 0.8
     private var backgroundColor: String = "black"
     private lateinit var appId: String
@@ -74,8 +70,6 @@ class ImageFragment : Fragment() {
             .getDouble("compressionquality")
         if(this.options.has("backgroundcolor")) backgroundColor = this.options
             .getString("backgroundcolor").toString()
-        if (this.options.has("customHeaders")) customHeaders = this.options
-            .getJSObject("customHeaders")!!
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -164,35 +158,16 @@ class ImageFragment : Fragment() {
         val toBeLoaded = image.url?.let { mImageToBeLoaded.getToBeLoaded(it) }
 
         if (toBeLoaded is String) {
-            if (toBeLoaded.contains("base64")) {
-                GlideApp.with(appContext)
-                    .asBitmap()
-                    .load(toBeLoaded)
-                    .fitCenter()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(ivTouchImage)
-            } else {
-                // load image from url
-                val lazyHeaders = LazyHeaders.Builder()
-                for (key in customHeaders.keys()) {
-                    customHeaders.getString(key)?.let { lazyHeaders.addHeader(key, it) }
-                }
-                val glideUrl = GlideUrl(toBeLoaded, lazyHeaders.build())
-                GlideApp.with(appContext)
-                    .asBitmap()
-                    .load(glideUrl)
-                    .fitCenter()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(ivTouchImage)
-            }
+            // load image from http
+            Glide.with(appContext)
+                .load(toBeLoaded)
+                .into(ivTouchImage)
         }
         if (toBeLoaded is File) {
             // load image from file
-            GlideApp.with(appContext)
+            Glide.with(appContext)
                 .asBitmap()
                 .load(toBeLoaded)
-                .fitCenter()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivTouchImage)
         }
         val share: ImageButton = binding.shareBtn
