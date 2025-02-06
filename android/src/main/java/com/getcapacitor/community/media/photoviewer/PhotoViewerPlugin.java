@@ -20,7 +20,6 @@ import org.json.JSONObject;
 @CapacitorPlugin(
     name = "PhotoViewer",
     permissions = {
-        @Permission(alias = PhotoViewerPlugin.MEDIAIMAGES, strings = { Manifest.permission.READ_MEDIA_IMAGES }),
         @Permission(alias = PhotoViewerPlugin.READ_EXTERNAL_STORAGE, strings = { Manifest.permission.READ_EXTERNAL_STORAGE })
     }
 )
@@ -45,12 +44,7 @@ public class PhotoViewerPlugin extends Plugin {
     @PermissionCallback
     private void imagesPermissionsCallback(PluginCall call) {
         if (Build.VERSION.SDK_INT >= 33) {
-            if (getPermissionState(MEDIAIMAGES) == PermissionState.GRANTED) {
-                isPermissions = true;
-                show(call);
-            } else {
-                call.reject(PERMISSION_DENIED_ERROR);
-            }
+            show(call);
         } else if (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 33) {
             if (getPermissionState(READ_EXTERNAL_STORAGE) == PermissionState.GRANTED) {
                 isPermissions = true;
@@ -63,9 +57,7 @@ public class PhotoViewerPlugin extends Plugin {
 
     private boolean isImagesPermissions() {
         if (Build.VERSION.SDK_INT >= 33) {
-            if (getPermissionState(MEDIAIMAGES) != PermissionState.GRANTED) {
-                return false;
-            }
+            return true;
         } else if (Build.VERSION.SDK_INT >= 29 && Build.VERSION.SDK_INT < 33) {
             if (getPermissionState(READ_EXTERNAL_STORAGE) != PermissionState.GRANTED) {
                 return false;
